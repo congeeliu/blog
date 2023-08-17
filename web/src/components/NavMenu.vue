@@ -23,6 +23,8 @@
 </template>
 
 <script>
+// import router from '../router';
+
 export default {
   name: 'NavMenu',
   data() {
@@ -32,7 +34,9 @@ export default {
   },
   methods: {
     logout() {
-
+      this.$store.commit('logout');
+      localStorage.removeItem('token');
+      this.$router.push('Login');
     }
   }
 }

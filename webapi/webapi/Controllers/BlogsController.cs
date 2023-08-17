@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,19 +22,21 @@ namespace webapi.Controllers
             _context = context;
         }
 
-        // GET: api/Blogs
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Blog>>> GetBlog()
-        {
-          if (_context.Blog == null)
-          {
-              return NotFound();
-          }
-            return await _context.Blog.ToListAsync();
-        }
+        //// GET: api/Blogs
+        //[HttpGet]
+        //[Authorize]
+        //public async Task<ActionResult<IEnumerable<Blog>>> GetBlog()
+        //{
+        //  if (_context.Blog == null)
+        //  {
+        //      return NotFound();
+        //  }
+        //    return await _context.Blog.ToListAsync();
+        //}
 
         // GET: api/Blogs/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Blog>> GetBlog(int id)
         {
           if (_context.Blog == null)
@@ -53,6 +56,7 @@ namespace webapi.Controllers
         // PUT: api/Blogs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutBlog(int id, Blog blog)
         {
             if (id != blog.Id)
@@ -84,6 +88,7 @@ namespace webapi.Controllers
         // POST: api/Blogs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Blog>> PostBlog(Blog blog)
         {
           if (_context.Blog == null)
@@ -98,6 +103,7 @@ namespace webapi.Controllers
 
         // DELETE: api/Blogs/5
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteBlog(int id)
         {
             if (_context.Blog == null)
@@ -119,6 +125,28 @@ namespace webapi.Controllers
         private bool BlogExists(int id)
         {
             return (_context.Blog?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        // GET: api/Blogs
+        [HttpGet]
+        [Authorize]
+        public ActionResult<IEnumerable<Blog>> GetBlogsByUserId()
+        {
+            if (_context.Blog == null)
+            {
+                return NotFound();
+            }
+            int userId = Int32.Parse(HttpContext.User.FindFirst("Id")?.Value ?? "0");
+            var blog =  _context.Blog.Where(b => b.UserId == userId).ToList();
+            Console.WriteLine(userId);
+            Console.WriteLine(blog);
+
+            if (blog == null)
+            {
+                return NotFound();
+            }
+
+            return blog;
         }
     }
 }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <NavMenu v-if="this.$store.state.user.token" />
+    <NavMenu v-if="this.$store.state.user.isLogin" />
     <el-container>
       <el-main>
         <div style="margin: 0 15vw;">

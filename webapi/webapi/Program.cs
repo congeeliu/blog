@@ -43,27 +43,17 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = false, //是否验证Issuer
-        //ValidIssuer = configuration["Jwt:Issuer"], //发行人Issuer
+        ValidIssuer = configuration["Jwt:Issuer"], //发行人Issuer
         ValidateAudience = false, //是否验证Audience
-        //ValidAudience = configuration["Jwt:Audience"], //订阅人Audience
+        ValidAudience = configuration["Jwt:Audience"], //订阅人Audience
         ValidateIssuerSigningKey = true, //是否验证SecurityKey
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"])), //SecurityKey
         ValidateLifetime = true, //是否验证失效时间
-        ClockSkew = TimeSpan.FromSeconds(30), //过期时间容错值，解决服务器端时间不同步问题（秒）
+        ClockSkew = TimeSpan.FromSeconds(2), //过期时间容错值，解决服务器端时间不同步问题（秒）
         RequireExpirationTime = true,
     };
 });
 builder.Services.AddSingleton(new JwtHelper(configuration));
-
-// Session
-//builder.Services.AddDistributedMemoryCache();
-
-//builder.Services.AddSession(options =>
-//{
-//    options.IdleTimeout = TimeSpan.FromSeconds(20000);//设置session的过期时间
-//    options.Cookie.HttpOnly = true;//设置在浏览器不能通过js获得该cookie的值 
-//    options.Cookie.IsEssential = true;
-//});
 
 var app = builder.Build();
 
@@ -80,8 +70,6 @@ app.UseCors(corsPolicy);
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-//app.UseSession();
 
 app.MapControllers();
 

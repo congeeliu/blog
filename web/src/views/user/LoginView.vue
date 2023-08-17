@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 
 export default {
   name: 'LoginView',
@@ -41,33 +41,8 @@ export default {
 
   methods: {
     login() {
-      axios.post('/api/Users/login', {
-        username: this.user.username,
-        password: this.user.password,
-      })
-        .then((res) => {
-          // console.log(res.data);
-          this.$store.commit('updateToken', res.data);
-          this.getInfo();
-          this.$router.push({ name: 'Index' });
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      this.$store.dispatch('login', this.user);
     },
-
-    getInfo() {
-      axios.get('/api/Users/info', {
-        headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
-      })
-        .then((res) => {
-          console.log(res.data);
-          // this.$store.commit('updateToken', res.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
   },
 
 

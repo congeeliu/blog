@@ -10,15 +10,26 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="find(true)">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="reset">重置</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="reset()">重置</el-button>
+
       </el-form-item>
     </el-form>
 
-    <div v-for="blog in  blogs " :key="blog.id" style="margin-bottom: 10px;">
+    <div style="margin-bottom: 20px;">
+      <router-link to="/blog/create">
+        <el-button type="primary" icon="el-icon-refresh" size="mini">新增</el-button>
+      </router-link>
+    </div>
+
+
+    <div v-for="blog in blogs" :key="blog.id" style="margin-bottom: 10px;">
       <el-card>
         <div slot="header" class="clearfix">
           <div style="font-size: large; font-weight: bold;">
-            <router-link :to="'/blog/' + blog.id">{{ blog.title }}</router-link>
+            <router-link :to="'/blog/content/' + blog.id">{{ blog.title }}</router-link>
+            <div style="float: right;">
+              <el-button type="danger" icon="el-icon-search" size="mini" @click="remove(blog.id)">删除</el-button>
+            </div>
           </div>
           <div style="color: gray;">作者id: {{ blog.userId }}</div>
         </div>
@@ -118,20 +129,39 @@ export default {
       //   size: this.pageData.pageSize,
       // };
 
+      // console.log(this.$store.state.user.role);
+
       axios.get('/api/Blogs'
-        // , {
-        //   // params: params,
-        //   // headers: { Authorization: 'Bearer ' + store.state.user.token },
-        // }
+        , {
+          // params: params,
+          headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+        }
       ).then(res => {
-        // console.log(res.data);
         this.blogs = res.data;
         // this.tableData = res.data.scores;
-        // this.tableDataBackup = res.data.scores;
         // this.recordsCount = res.data.recordsCount;
       }).catch(() => {
         // console.log(error);
-        // this.$message.error('获取列表失败');
+        // if (error.response.statusText === 'Unauthorized') {
+        //   console.log('access token过期');
+        //   this.$message.error('access token过期');
+        // }
+      });
+    },
+
+    remove(id) {
+      axios.delete('/api/Blogs/' + id
+        , {
+          // params: params,
+          headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+        }
+      ).then(() => {
+        // console.log(res);
+        this.$message.success('删除成功');
+        this.getList(true);
+      }).catch(error => {
+        this.$message.error('删除失败');
+        console.log(error);
       });
     },
 

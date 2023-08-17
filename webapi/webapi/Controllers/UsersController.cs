@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -132,67 +133,50 @@ namespace webapi.Controllers
 
         // Post: api/Users/login
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login([FromBody]User user)
+        public async Task<ActionResult<string>> Login([FromBody]User loginUser)
         {
             if (_context.User == null)
             {
                 return NotFound("用户不存在");
             }
             //var username = jsonObject["username"].ToString();
-            var findUser = await _context.User.SingleOrDefaultAsync(u => u.Username == user.Username);
+            var user = await _context.User.SingleOrDefaultAsync(u => u.Username == loginUser.Username);
 
-            if (findUser == null)
+            if (user == null)
             {
                 //return NotFound("用户不存在");
                 throw new Exception("用户不存在");
             }
 
-            if (findUser.Password != user.Password)
+            if (user.Password != loginUser.Password)
             {
                 //return NotFound("密码错误");
                 throw new Exception("密码错误");
             }
 
-            //ISession session = HttpContext.Session;
-            //session.SetInt32("id", user.Id);
-            //if (string.IsNullOrEmpty(HttpContext.Session.GetString("username")))
-            //{
-            //    session.SetString("username", user.Username);
-            //}
-                
-            //session.SetString("role", user.Role);
-            //Console.WriteLine("setName: " + user.Username);
-            //var username = session.GetString("username");
-            //Console.WriteLine("setName2: " + username);
-            //return user;
-            return _jwtHelper.CreateToken(user.Username, user.Role);
+            var accessToken = _jwtHelper.CreateToken(user);
+            //var refreshToken = _jwtHelper.CreateToken(user);
+            //JObject json = new JObject();
+            //json["accessToken"] = accessToken;
+            //json["refreshToken"] = refreshToken;
+            return accessToken;
         }
 
-        [HttpGet("token")]
-        public ActionResult<string> GetToken()
-        {
-            var token = _jwtHelper.CreateToken("username", "role");
-            return token;
-        }
+        //[HttpGet("token")]
+        //public ActionResult<string> GetToken()
+        //{
+        //    var token = _jwtHelper.CreateToken("username", "role");
+        //    return token;
+        //}
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("info")]
-        public ActionResult<string> GetInfo()
+        public ActionResult<User> GetInfo()
         {
-            //ISession session = HttpContext.Session;
-            //var getId = session.GetInt32("id");
-            //int id = -1;
-            //if (getId != null) id = (int)getId;
-            //string? username = session.GetString("username");
-            //Console.WriteLine(session.Get("username"));
-
-            //var role = session.GetString("role");
-            //User user = new User(id, username, null, role);
-            //Console.WriteLine("getName: " + username);
-            //var username = HttpContext.AuthenticateAsync().Result.Principal.Claims.First(claim => claim.Type == "username").Value;
-            //Console.WriteLine("username: " + username);
-            var name = HttpContext.User.Identity.Name;
-            return name;
+            var id = HttpContext.User.FindFirst("Id")?.Value;
+            var username = HttpContext.User.Identity.Name;
+            var role = HttpContext.User.FindFirst("Role")?.Value;
+            return new User(Int32.Parse(id), username, null, role);
         }
     }
 }

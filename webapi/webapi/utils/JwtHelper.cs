@@ -1,7 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using webapi.Models;
 
 namespace webapi.utils
 {
@@ -14,15 +16,16 @@ namespace webapi.utils
             _configuration = configuration;
         }
 
-        public string CreateToken(string username, string role)
+        public string CreateToken(User user)
         {
             // 1. 定义需要使用到的Claims
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, username), //HttpContext.User.Identity.Name
-                new Claim(ClaimTypes.Role, role), //HttpContext.User.IsInRole("r_admin")
+                new Claim(ClaimTypes.Name, user.Username), //HttpContext.User.Identity.Name
+                //new Claim(ClaimTypes.Role, user.Role), //HttpContext.User.IsInRole("r_admin")
                 //new Claim(JwtRegisteredClaimNames.Jti, "admin"),
-                //new Claim("username", "Admin")
+                new Claim("Id", user.Id.ToString()),
+                new Claim("Role", user.Role)
                 //new Claim("Name", "超级管理员")
             };
 
@@ -39,13 +42,11 @@ namespace webapi.utils
 
             // 5. 根据以上，生成token
             var jwtSecurityToken = new JwtSecurityToken(
-                //_configuration["Jwt:Issuer"],     //Issuer
-                //_configuration["Jwt:Audience"],   //Audience
-                null,
-                null,
+                _configuration["Jwt:Issuer"],     //Issuer
+                _configuration["Jwt:Audience"],   //Audience
                 claims,                          //Claims,
                 DateTime.Now,                    //notBefore
-                DateTime.Now.AddSeconds(30),    //expires
+                DateTime.Now.AddMinutes(60),    //expires
                 signingCredentials               //Credentials
             );
 

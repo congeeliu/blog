@@ -1,28 +1,22 @@
 <template>
   <div>
 
-    <el-card>
-      <div slot="header" class="clearfix">
-        <div style="font-size: large; font-weight: bold;">{{ blog.title }}</div>
-        <div style="float: right;">
-          <router-link :to="'/blog/update/' + blog.id">
-            <el-button type="warning" icon="el-icon-search" size="mini">修改</el-button>
-          </router-link>
-        </div>
-        <div style="color: gray;">作者id: {{ blog.userId }}</div>
-      </div>
-
-      <div>
-        <div class="card-content">{{ blog.content }}</div>
-        <div style="color: gray; margin-top: 10px;">发布时间: {{ blog.createTime }}</div>
-      </div>
-    </el-card>
+    <el-form label-width="80px">
+      <el-form-item label="标题">
+        <el-input v-model="blog.title"></el-input>
+      </el-form-item>
+      <el-form-item label="内容">
+        <el-input v-model="blog.content" type="textarea" :autosize="{ minRows: 20, maxRows: 40 }"></el-input>
+      </el-form-item>
+      <el-button type="warning" icon="el-icon-refresh" @click="update(blog.id)">修改博客</el-button>
+    </el-form>
 
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+// import router from '../../router';
 // import store from '@/store/index.js'
 
 export default {
@@ -34,7 +28,7 @@ export default {
       blog: {
         id: 1,
         title: '标题11',
-        content: '内容1',
+        content: '内容11',
         author: '张三',
         createTime: '2023-7-31',
       },
@@ -105,6 +99,25 @@ export default {
       }).catch((error) => {
         console.log(error);
         // this.$message.error('获取列表失败');
+      });
+    },
+
+    update(id) {
+      axios.put('/api/Blogs/' + id, {
+        id: id,
+        userId: this.$store.state.user.id,
+        title: this.blog.title,
+        content: this.blog.content,
+      }, {
+        headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+      }
+      ).then(() => {
+        // console.log(res);
+        this.$message.success('修改成功');
+        this.$router.push({ name: 'BlogList' });
+      }).catch(error => {
+        this.$message.error('修改失败');
+        console.log(error);
       });
     },
 
