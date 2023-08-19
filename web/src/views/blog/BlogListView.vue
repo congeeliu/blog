@@ -35,7 +35,7 @@
         </div>
 
         <div>
-          <div class="card-content">{{ blog.content }}</div>
+          <div class="card-content">{{ markdownSummary(blog.content) }}</div>
           <div style="color: gray; margin-top: 10px;">发布时间: {{ blog.createTime }}</div>
         </div>
       </el-card>
@@ -67,13 +67,6 @@ export default {
           title: '标题1',
           content: '内容1',
           author: '张三',
-          createTime: '2023-7-31',
-        },
-        {
-          id: 2,
-          title: '标题2',
-          content: '内容2',
-          author: '李四',
           createTime: '2023-7-31',
         },
       ],
@@ -131,11 +124,10 @@ export default {
 
       // console.log(this.$store.state.user.role);
 
-      axios.get('/api/Blogs'
-        , {
-          // params: params,
-          headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
-        }
+      axios.get('/api/Blogs', {
+        // params: params,
+        headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+      }
       ).then(res => {
         this.blogs = res.data;
         // this.tableData = res.data.scores;
@@ -150,11 +142,10 @@ export default {
     },
 
     remove(id) {
-      axios.delete('/api/Blogs/' + id
-        , {
-          // params: params,
-          headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
-        }
+      axios.delete('/api/Blogs/' + id, {
+        // params: params,
+        headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+      }
       ).then(() => {
         // console.log(res);
         this.$message.success('删除成功');
@@ -163,6 +154,52 @@ export default {
         this.$message.error('删除失败');
         console.log(error);
       });
+    },
+
+    markdownSummary(content) {
+      var marked = require('marked-ast');
+      // var ast = marked.parse(str);
+      // return ast;
+      const len = content.length
+      if (content) {
+        content = content.split('\n')
+        const textArr = []
+        for (let i = 0; i < content.length; i++) {
+          const text = content[i].trim()
+          if (text) {
+            textArr.push(text)
+          }
+        }
+        content = textArr.join('\n')
+        const ast = marked.parse(content.trim())
+        const str = this.parseMarkAst(ast).slice(0, len)
+        return str
+      }
+      return ''
+    },
+
+    parseMarkAst(ast) {
+      let str = ''
+      for (let i = 0; i < ast.length; i++) {
+        const curAst = ast[i]
+        if (curAst.type === 'heading' || curAst.type === 'paragraph' || curAst.type === 'strong' || curAst.type === 'em') {
+          if (curAst.text.length === 1) {
+            if (curAst.text !== '/n') {
+              str += curAst.text[0]
+            }
+          } else {
+            for (let y = 0; y < curAst.text.length; y++) {
+              const yAst = curAst.text[y]
+              if (typeof yAst === 'object') {
+                str += yAst.text[0].trim()
+              } else {
+                str += yAst.trim()
+              }
+            }
+          }
+        }
+      }
+      return str
     },
 
     // find(toFirstPage) {
@@ -181,41 +218,9 @@ export default {
 
     // },
 
-    // openDialog(row, title) {
-    //   this.dialogForm = { ...row };
-    //   this.dialogForm.title = title;
-    //   this.dialogFormVisible = true;
-    // },
-
-    // updateScore() {
-    //   let legal = true;
-    //   this.$refs['dialogForm'].validate((valid) => {
-    //     if (!valid) legal = false;
-    //   });
-    //   if (!legal) {
-    //     this.$message.error('成绩格式不合法');
-    //     return;
-    //   }
-
-    //   let params = {
-    //     id: this.dialogForm.id,
-    //     score: this.dialogForm.score,
-    //   };
-    //   axios.post('/score/update', params, {
-    //     // headers: { Authorization: 'Bearer ' + store.state.user.token },
-    //   }).then(() => {
-    //     this.getList(true);
-    //     this.dialogFormVisible = false;
-    //     this.$message.success(this.dialogForm.title + '成功');
-    //   }).catch(() => {
-    //     // console.log(error);
-    //     this.$message.success(this.dialogForm.title + '失败');
-    //   });
-    // },
-
     reset() {
-      this.findCondition.courseName = "";
-      this.findCondition.courseTerm = "";
+      this.findCondition.title = "";
+      this.findCondition.content = "";
       this.getList(true);
     }
   },

@@ -13,7 +13,10 @@
       </div>
 
       <div>
-        <div class="card-content">{{ blog.content }}</div>
+        <div class="card-content">
+          <!-- {{ blog.content }} -->
+          <div id="viewer"></div>
+        </div>
         <div style="color: gray; margin-top: 10px;">发布时间: {{ blog.createTime }}</div>
       </div>
     </el-card>
@@ -23,7 +26,9 @@
 
 <script>
 import axios from 'axios';
-// import store from '@/store/index.js'
+// import Editor from '@toast-ui/editor';
+import '@toast-ui/editor/dist/toastui-editor.css'; // Editor's Style
+import Viewer from '@toast-ui/editor/dist/toastui-editor-viewer';
 
 export default {
   name: 'BlogView',
@@ -34,145 +39,49 @@ export default {
       blog: {
         id: 1,
         title: '标题11',
-        content: '内容1',
+        content: 'You can create an instance with the following code and use `getHtml()` and `getMarkdown()` of the [Editor](https://github.com/nhn/tui.editor).',
         author: '张三',
         createTime: '2023-7-31',
+        userId: 1,
+        viewer: {},
       },
-      tableData: [],
-      tableDataBackup: [],
-      recordsCount: 0,
-      pageData: {
-        pageSize: 10,
-        pageSizes: [10, 20, 30, 40],
-        currentPage: 1
-      },
-      findCondition: {
-        title: '',
-        content: '',
-      },
-      isFind: false,
-      labelPosition: 'right',
-      rules: {
-      }
     }
   },
 
   mounted() {
-    this.getBlog(true);
-    // console.log(this.$route.params.id);
+    this.getBlog();
+    this.blog.viewer = new Viewer({
+      el: document.querySelector('#viewer'),
+      height: '700px',
+    });
+    this.blog.viewer.setMarkdown(this.blog.content);
+    // console.log(this.blog.content);
   },
 
   methods: {
-    handleSizeChange(size) {
-      this.pageData.pageSize = size;
-      if (!this.isFind) {
-        this.getList(false);
-      } else {
-        this.find(false);
-      }
-    },
-
-    handleCurrentChange(page) {
-      this.pageData.currentPage = page;
-      if (!this.isFind) {
-        this.getList(false);
-      } else {
-        this.find(false);
-      }
-    },
-
-    getBlog(toFirstPage) {
-      this.isFind = false;
-      if (toFirstPage) {
-        this.pageData.currentPage = 1;
-      }
-      // let params = {
-      //   page: this.pageData.currentPage,
-      //   size: this.pageData.pageSize,
-      // };
-      let blogId = this.$route.params.id;
-
+    getBlog() {
+      const blogId = this.$route.params.id;
       axios.get('/api/Blogs/' + blogId
         , {
           id: blogId,
           headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
         }
       ).then(res => {
-        this.blog = res.data;
+        this.blog.id = res.data.id;
+        this.blog.title = res.data.title;
+        this.blog.content = res.data.content;
+        this.blog.userId = res.data.userId;
+        this.blog.createTime = res.data.createTime;
+        this.blog.viewer.setMarkdown(this.blog.content);
+        // console.log(this.blog.content);
         // console.log(res);
-        // this.tableData = res.data.scores;
-        // this.recordsCount = res.data.recordsCount;
       }).catch((error) => {
         console.log(error);
         // this.$message.error('获取列表失败');
       });
     },
-
-    // find(toFirstPage) {
-    //   this.isFind = true;
-    //   this.tableData = this.tableDataBackup;
-    //   if (toFirstPage) {
-    //     this.pageData.currentPage = 1;
-    //   }
-
-    //   if (this.findCondition.courseName !== '') {
-    //     this.tableData = this.tableData.filter(score => score.courseName.includes(this.findCondition.courseName));
-    //   }
-    //   if (this.findCondition.courseTerm !== '') {
-    //     this.tableData = this.tableData.filter(score => score.courseTerm.includes(this.findCondition.courseTerm));
-    //   }
-
-    // },
-
-    // openDialog(row, title) {
-    //   this.dialogForm = { ...row };
-    //   this.dialogForm.title = title;
-    //   this.dialogFormVisible = true;
-    // },
-
-    // updateScore() {
-    //   let legal = true;
-    //   this.$refs['dialogForm'].validate((valid) => {
-    //     if (!valid) legal = false;
-    //   });
-    //   if (!legal) {
-    //     this.$message.error('成绩格式不合法');
-    //     return;
-    //   }
-
-    //   let params = {
-    //     id: this.dialogForm.id,
-    //     score: this.dialogForm.score,
-    //   };
-    //   axios.post('/score/update', params, {
-    //     // headers: { Authorization: 'Bearer ' + store.state.user.token },
-    //   }).then(() => {
-    //     this.getList(true);
-    //     this.dialogFormVisible = false;
-    //     this.$message.success(this.dialogForm.title + '成功');
-    //   }).catch(() => {
-    //     // console.log(error);
-    //     this.$message.success(this.dialogForm.title + '失败');
-    //   });
-    // },
-
-    reset() {
-      this.findCondition.courseName = "";
-      this.findCondition.courseTerm = "";
-      this.getList(true);
-    }
   },
-
-
-
 }
 </script>
 
-<style scoped>
-.card-content {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-</style>
+<style scoped></style>
