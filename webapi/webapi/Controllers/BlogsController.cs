@@ -22,21 +22,19 @@ namespace webapi.Controllers
             _context = context;
         }
 
-        //// GET: api/Blogs
-        //[HttpGet]
-        //[Authorize]
-        //public async Task<ActionResult<IEnumerable<Blog>>> GetBlog()
-        //{
-        //  if (_context.Blog == null)
-        //  {
-        //      return NotFound();
-        //  }
-        //    return await _context.Blog.ToListAsync();
-        //}
+        // GET: api/Blogs
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetBlog()
+        {
+            if (_context.Blog == null)
+            {
+                return NotFound();
+            }
+            return await _context.Blog.ToListAsync();
+        }
 
         // GET: api/Blogs/5
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<Blog>> GetBlog(int id)
         {
           if (_context.Blog == null)
@@ -127,8 +125,8 @@ namespace webapi.Controllers
             return (_context.Blog?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
-        // GET: api/Blogs
-        [HttpGet]
+        // GET: api/Blogs/user
+        [HttpGet("user")]
         [Authorize]
         public ActionResult<IEnumerable<Blog>> GetBlogsByUserId()
         {
@@ -138,8 +136,8 @@ namespace webapi.Controllers
             }
             int userId = Int32.Parse(HttpContext.User.FindFirst("Id")?.Value ?? "0");
             var blog =  _context.Blog.Where(b => b.UserId == userId).ToList();
-            Console.WriteLine(userId);
-            Console.WriteLine(blog);
+            //Console.WriteLine(userId);
+            //Console.WriteLine(blog);
 
             if (blog == null)
             {

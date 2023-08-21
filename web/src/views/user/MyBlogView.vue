@@ -124,9 +124,9 @@ export default {
 
       // console.log(this.$store.state.user.role);
 
-      axios.get('/api/Blogs', {
+      axios.get('/api/Blogs/user', {
         // params: params,
-        // headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
+        headers: { Authorization: 'Bearer ' + this.$store.state.user.token },
       }
       ).then(res => {
         this.blogs = res.data;

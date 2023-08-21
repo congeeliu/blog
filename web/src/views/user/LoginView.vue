@@ -10,6 +10,9 @@
       <div>
         <div class="center">
           <el-button type="primary" @click="login()">登录</el-button>
+          <router-link to="/register" style="margin-left: 10px;">
+            <el-button type="primary">注册</el-button>
+          </router-link>
         </div>
       </div>
 

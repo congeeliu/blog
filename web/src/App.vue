@@ -1,12 +1,12 @@
 <template>
   <div>
-    <NavMenu v-if="this.$store.state.user.isLogin" />
+    <NavMenu />
     <el-container>
       <el-main>
         <div style="margin: 0 15vw;">
-          <el-card>
-            <router-view />
-          </el-card>
+          <!-- <el-card> -->
+          <router-view />
+          <!-- </el-card> -->
         </div>
       </el-main>
     </el-container>

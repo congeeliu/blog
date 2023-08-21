@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using webapi.Data;
 using webapi.utils;
@@ -7,49 +7,45 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("Localhost");
+var configuration = builder.Configuration;
+var corsPolicy = "CorsPolicy";
 
 // Add services to the container.
-builder.Services.AddDbContext<UserContext>(options => options.UseSqlServer(connectionString));
-builder.Services.AddDbContext<BlogContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<BlogContext>(options => options.UseSqlServer(configuration.GetConnectionString("Localhost")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var corsPolicy = "CorsPolicy";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: corsPolicy,
-                      policy =>
-                      {
-                          policy.AllowAnyOrigin()    //ÔÊĞíËùÓĞOrigin²ßÂÔ
-                          .AllowAnyMethod()    //ÔÊĞíËùÓĞÇëÇó·½·¨£ºGet,Post,Put,Delete
-                          .AllowAnyHeader();   //ÔÊĞíËùÓĞÇëÇóÍ·:application/json
-                      });
+    options.AddPolicy(name: corsPolicy, policy =>
+    {
+        policy.AllowAnyOrigin()    //å…è®¸æ‰€æœ‰Originç­–ç•¥
+        .AllowAnyMethod()    //å…è®¸æ‰€æœ‰è¯·æ±‚æ–¹æ³•ï¼šGet,Post,Put,Delete
+        .AllowAnyHeader();   //å…è®¸æ‰€æœ‰è¯·æ±‚å¤´:application/json
+    });
 });
 
-//×¢²áJWT·şÎñ
-var configuration = builder.Configuration;
+//æ³¨å†ŒJWTæœåŠ¡
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+}).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters()
     {
-        ValidateIssuer = false, //ÊÇ·ñÑéÖ¤Issuer
-        ValidIssuer = configuration["Jwt:Issuer"], //·¢ĞĞÈËIssuer
-        ValidateAudience = false, //ÊÇ·ñÑéÖ¤Audience
-        ValidAudience = configuration["Jwt:Audience"], //¶©ÔÄÈËAudience
-        ValidateIssuerSigningKey = true, //ÊÇ·ñÑéÖ¤SecurityKey
+        ValidateIssuer = false, //æ˜¯å¦éªŒè¯Issuer
+        ValidIssuer = configuration["Jwt:Issuer"], //å‘è¡ŒäººIssuer
+        ValidateAudience = false, //æ˜¯å¦éªŒè¯Audience
+        ValidAudience = configuration["Jwt:Audience"], //è®¢é˜…äººAudience
+        ValidateIssuerSigningKey = true, //æ˜¯å¦éªŒè¯SecurityKey
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"])), //SecurityKey
-        ValidateLifetime = true, //ÊÇ·ñÑéÖ¤Ê§Ğ§Ê±¼ä
-        ClockSkew = TimeSpan.FromSeconds(2), //¹ıÆÚÊ±¼äÈİ´íÖµ£¬½â¾ö·şÎñÆ÷¶ËÊ±¼ä²»Í¬²½ÎÊÌâ£¨Ãë£©
+        ValidateLifetime = true, //æ˜¯å¦éªŒè¯å¤±æ•ˆæ—¶é—´
+        ClockSkew = TimeSpan.FromSeconds(2), //è¿‡æœŸæ—¶é—´å®¹é”™å€¼ï¼Œè§£å†³æœåŠ¡å™¨ç«¯æ—¶é—´ä¸åŒæ­¥é—®é¢˜ï¼ˆç§’ï¼‰
         RequireExpirationTime = true,
     };
 });
@@ -66,7 +62,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(corsPolicy);
 
-//µ÷ÓÃÖĞ¼ä¼ş£ºUseAuthentication£¨ÈÏÖ¤£©£¬±ØĞëÔÚËùÓĞĞèÒªÉí·İÈÏÖ¤µÄÖĞ¼ä¼şÇ°µ÷ÓÃ£¬±ÈÈç UseAuthorization£¨ÊÚÈ¨£©¡£
+//è°ƒç”¨ä¸­é—´ä»¶ï¼šUseAuthenticationï¼ˆè®¤è¯ï¼‰ï¼Œå¿…é¡»åœ¨æ‰€æœ‰éœ€è¦èº«ä»½è®¤è¯çš„ä¸­é—´ä»¶å‰è°ƒç”¨ï¼Œæ¯”å¦‚ UseAuthorizationï¼ˆæˆæƒï¼‰ã€‚
 app.UseAuthentication();
 
 app.UseAuthorization();

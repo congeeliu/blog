@@ -15,5 +15,7 @@ namespace webapi.Data
         }
 
         public DbSet<webapi.Models.Blog> Blog { get; set; } = default!;
+        public DbSet<webapi.Models.User> User { get; set; } = default!;
+        public DbSet<webapi.Models.Comment>? Comment { get; set; }
     }
 }

@@ -10,7 +10,7 @@ const routes = [
     name: 'Index',
     component: () => import('@/views/blog/BlogListView.vue'),
     meta: {
-      requireAuth: true,  // 添加该字段，表示进入这个路由是需要登录的
+      requireAuth: false,  // 添加该字段，表示进入这个路由是需要登录的
     },
   },
   {
@@ -18,7 +18,7 @@ const routes = [
     name: 'BlogList',
     component: () => import('@/views/blog/BlogListView.vue'),
     meta: {
-      requireAuth: true,
+      requireAuth: false,
     },
   },
   {
@@ -26,7 +26,7 @@ const routes = [
     name: 'Blog',
     component: () => import('@/views/blog/BlogView.vue'),
     meta: {
-      requireAuth: true,
+      requireAuth: false,
     },
   },
   {
@@ -46,6 +46,14 @@ const routes = [
     },
   },
   {
+    path: '/user/myblog',
+    name: 'MyBlog',
+    component: () => import('@/views/user/MyBlogView.vue'),
+    meta: {
+      requireAuth: true,
+    },
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/user/LoginView.vue'),
@@ -57,6 +65,14 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: () => import('@/views/user/RegisterView.vue'),
+    meta: {
+      requireAuth: false,
+    },
+  },
+  {
+    path: '/user/info',
+    name: 'UserInfo',
+    component: () => import('@/views/user/UserInfoView.vue'),
     meta: {
       requireAuth: false,
     },

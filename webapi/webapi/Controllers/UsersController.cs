@@ -21,10 +21,10 @@ namespace webapi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserContext _context;
+        private readonly BlogContext _context;
         private readonly JwtHelper _jwtHelper;
 
-        public UsersController(UserContext context, JwtHelper jwtHelper)
+        public UsersController(BlogContext context, JwtHelper jwtHelper)
         {
             _context = context;
             _jwtHelper = jwtHelper;
@@ -97,9 +97,14 @@ namespace webapi.Controllers
         {
             if (_context.User == null)
             {
-                return Problem("Entity set 'UserContext.User'  is null.");
+                return Problem("Entity set 'BlogContext.User'  is null.");
             }
-            user.Password = Util.GetMD5(user.Password);
+            if (user.Password == "")
+            {
+                throw new Exception("密码不能为空");
+            }
+            user.Password = Util.GetMD5(user.Password!);
+            user.Role = "user";
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
@@ -148,7 +153,7 @@ namespace webapi.Controllers
                 throw new Exception("用户不存在");
             }
 
-            if (user.Password != loginUser.Password)
+            if (Util.GetMD5(loginUser.Password!) != user.Password)
             {
                 //return NotFound("密码错误");
                 throw new Exception("密码错误");
@@ -173,10 +178,11 @@ namespace webapi.Controllers
         [HttpGet("info")]
         public ActionResult<User> GetInfo()
         {
-            var id = HttpContext.User.FindFirst("Id")?.Value;
-            var username = HttpContext.User.Identity.Name;
-            var role = HttpContext.User.FindFirst("Role")?.Value;
-            return new User(Int32.Parse(id), username, null, role);
+            var user = HttpContext.User;
+            var id = user.FindFirst("Id")?.Value;
+            var username = user.Identity!.Name;
+            var role = user.FindFirst("Role")?.Value;
+            return new User(Int32.Parse(id!), username!, null, role!);
         }
     }
 }
