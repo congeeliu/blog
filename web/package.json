@@ -1,7 +1,7 @@
 {
   "name": "web",
   "version": "0.1.0",
-  "__comment": "注释掉的内容：'@toast-ui/editor': '^3.2.2', 'axios': '^1.4.0', 'core-js': '^3.6.5',' 'marked-ast': '^0.3.0,",
+  "__comment": "注释掉的内容：'@toast-ui/editor': '^3.2.2', 'axios': '^1.4.0', 'core-js': '^3.6.5',' 'marked-ast': '^0.3.0',      devDependencies: 'vue-template-compiler': '^2.6.11'   ",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -23,7 +23,6 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
-    "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {
     "root": true,
